@@ -2,12 +2,16 @@ import jwt from "jsonwebtoken";
 import 'dotenv/config';
 
 const authenticateUser=(req, res, next) => {
-        const token = req.header('auth-token');
+        
+        try {
+            const token = req.header('auth-token');
         if (!token) {
             return res.status(401).send({ message: "Authenticate using a valid token" });
         }
-        try {
             const data = jwt.verify(token, process.env.SECRET_KEY);
+            if (!data) {
+                return res.status(401).send({ message: "Authenticate using a valid token "});
+            }
             req.userId = data.id;
             next();
         } catch (error) {

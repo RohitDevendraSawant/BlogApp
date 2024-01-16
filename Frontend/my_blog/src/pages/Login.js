@@ -6,6 +6,7 @@ import Row from 'react-bootstrap/Row';
 import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 
+
 function Login() {
     const [validated, setValidated] = useState(false);
     const [data, setData] = useState({email: "", password: ""});
@@ -19,6 +20,26 @@ function Login() {
         let value = e.target.value;
 
         setData({ ...data, [name]: value });
+    }
+
+    const getAccessToken= async (refreshToken)=>{
+        try {
+            const response = await fetch("http://localhost:5000/api/user/getAccessToken", {
+                method: "POST",
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({refreshToken})
+            });
+
+
+            if (response.ok) {
+                const data = await response.json();
+                return data.accessToken;
+            }
+        } catch (error) {
+            console.log(error);
+        }
     }
 
     const handleSubmit = async (event) => {
@@ -38,10 +59,13 @@ function Login() {
                 },
                 body: JSON.stringify(data)
             });
+
+
             if (response.ok) {
                 const data = await response.json()
-                const token = [data.accessToken, data.refreshToken];
-                
+                const refreshToken = data.refreshToken;
+                const token = await getAccessToken(refreshToken);
+                console.log(token);
                 setCookie('jwtToken', token, { path : '/'});
                 navigate("/");
             }

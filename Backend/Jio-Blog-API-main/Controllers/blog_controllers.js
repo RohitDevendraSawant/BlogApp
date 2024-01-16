@@ -1,6 +1,7 @@
 import Blog from "../models/blog.js";
 import escapeStringRegexp from "escape-string-regexp";
 import { createClient } from "redis";
+import blog from "../models/blog.js";
 
 
 const redisClient = createClient({
@@ -85,10 +86,13 @@ const getPopular = async (req, res) => {
         try {
           const data = await redisClient.get(key);
           const objData = JSON.parse(data);
-          if (objData.blog == {}) {
-            return res.status(200).json([]);
+          let blog = objData.blog
+          if (Object.keys(blog).length == 0) {
+            continue;
           }
-          blogs.push(objData.blog);
+          else{
+            blogs.push(objData.blog);
+          }
         } catch (error) {
           console.error(`Error retrieving data for key ${key}: ${error.message}`);
         }
