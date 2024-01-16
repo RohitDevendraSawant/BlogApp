@@ -38,6 +38,8 @@ function NewBlog() {
             if (response.ok) {
                 console.log(response);
                 alert("Blog added.")
+                setdata({ title: "", author: "",  content: "" });
+
             }
             else{
                 let error = await response.json();

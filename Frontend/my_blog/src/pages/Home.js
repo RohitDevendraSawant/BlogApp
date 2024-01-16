@@ -41,6 +41,28 @@ function Home() {
 
     }
 
+    const getPopular= async ()=>{
+        try {
+            const response = await fetch(`${host}/api/blog/getPopular`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': cookies.jwtToken
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                setData(data);
+            }
+        } catch (error) {
+            console.log(error);
+            alert(error);
+        }
+
+    }
+
     useEffect(() => {
         isAuthenticated();
         getBlogs();
@@ -51,8 +73,9 @@ function Home() {
         <>
             <div className='container my-5'>
                 <div className='row'>
-                    <div className='col-3'>
-                        <h5>Serach for your blog with blog title</h5>
+                    <div className='col-4 d-flex justify-content-around'>
+                    <button type="button" class="btn btn-light" onClick={getBlogs}>All</button>
+                    <button type="button" class="btn btn-light" onClick={getPopular}>Popular</button>
                     </div>
                     <div className='col-5'>
                         <div className='d-flex'>

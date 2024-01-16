@@ -3,21 +3,15 @@ import bcrypt from 'bcryptjs';
 import jwt from 'jsonwebtoken';
 import 'dotenv/config';
 
-const isUserExist = async (email) => {
-    const user = await User.findOne({ email });
-    if (user === null) {
-        return false;
-    }
-    return user;
-}
 
 const signup = async (req, res) => {
     try {
         const { fname, lname, email, password, confirmPassword } = req.body;
 
-        const flag = await isUserExist(email)
+        const user = await User.findOne({ email });
+        
 
-        if (flag) {
+        if (user) {
             return res.status(400).json({ message: "User with this email already exist." });
         }
 
@@ -43,9 +37,10 @@ const signup = async (req, res) => {
 }
 
 const login = async (req, res) => {
-    const { email, password } = req.body;
+    try {
+        const { email, password } = req.body;
 
-    const user = await isUserExist(email);
+    const user = await User.findOne({ email });
 
     if (!user) {
         return res.status(400).json("Invalid credentials");
@@ -62,9 +57,50 @@ const login = async (req, res) => {
         email: user.email
     }
 
-    const authToken= jwt.sign(data, process.env.SECRET_KEY);
-    return res.status(200).json({ authToken });
+    
+    let accessToken= jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '1D' });
+    let refreshToken= jwt.sign(data, process.env.SECRET_KEY, {expiresIn: '10D'});
+    
+    await User.updateOne({email : user.email},  { refreshToken: refreshToken });
+
+    
+    return res.status(200).json({ accessToken, refreshToken });
+    } catch (error) {
+    console.log(error);
+    return res.status(500).json({message: "Internal server error"}); 
+    }
+    
+}
+
+const getAccessToken= (req, res)=>{
+    try{
+        const { refreshToken } = req.body;
+
+        jwt.verify(refreshToken, process.env.SECRET_KEY, async (err, data)=>{
+            if (err) {
+                return res.status(400).json({message: "Invalid token"});
+            }
+            else{
+                const user = await User.findOne({email: data.email });
+    
+                if (user && user.refreshToken == refreshToken) {
+                    let accessToken = jwt.sign({
+                        id: user._id,
+                        email: user.email
+                    }, process.env.SECRET_KEY, { expiresIn: "1D"});
+                    return res.status(200).json({accessToken});
+                }
+                else{
+                    return res.status(400).json({message: "Invalid refresh token"})
+                }
+            }
+        });
+
+    }
+    catch(error){
+        console.log(error);
+    }
 }
 
 
-export { signup, login };
+export { signup, login, getAccessToken };
