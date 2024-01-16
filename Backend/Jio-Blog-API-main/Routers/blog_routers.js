@@ -1,15 +1,16 @@
-const express = require('express');
+import express from "express";
+
+import { getBlogs, getBlogById, getPopular, addBlog,  updateBlog, deleteBlog} from "../Controllers/blog_controllers.js";
+import authenticateUser from "../middleware/authenticateUser.js";
+
 const router = express.Router();
 
-const authControllers = require("../Controllers/blog_controllers");
-const authenticateUser = require("../middleware/authenticateUser");
+// router.get("/", authControllers.home);
+router.get("/getBlogs", authenticateUser, getBlogs);
+router.get("/getBlog/:id", authenticateUser, getBlogById);
+router.get("/getPopular", authenticateUser, getPopular);
+router.post("/addBlog", authenticateUser, addBlog);
+router.put("/updateBlog/:id", authenticateUser, updateBlog);
+router.delete("/deleteBlog/:id", authenticateUser, deleteBlog);
 
-router.get("/", authControllers.home);
-router.get("/getBlogs", authenticateUser, authControllers.getBlogs);
-router.get("/getBlog/:id", authenticateUser, authControllers.getBlogById);
-router.get("/getPopular", authenticateUser, authControllers.getPopular);
-router.post("/addBlog", authenticateUser, authControllers.addBlog);
-router.put("/updateBlog/:id", authenticateUser, authControllers.updateBlog);
-router.delete("/deleteBlog/:id", authenticateUser, authControllers.deleteBlog);
-
-module.exports = router;
+export default router;

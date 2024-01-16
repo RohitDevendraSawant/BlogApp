@@ -1,7 +1,7 @@
-const User = require("../models/user");
-const bcrypt = require('bcryptjs');
-const jwt = require('jsonwebtoken');
-require("dotenv").config();
+import User from "../models/user.js";
+import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
+import 'dotenv/config';
 
 const isUserExist = async (email) => {
     const user = await User.findOne({ email });
@@ -67,4 +67,4 @@ const login = async (req, res) => {
 }
 
 
-module.exports = { signup, login };
+export { signup, login };

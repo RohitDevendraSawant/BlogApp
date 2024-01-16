@@ -1,8 +1,11 @@
-const express = require("express");
-const cors = require("cors");
-var bodyParser = require('body-parser')
+import express from "express";
+import cors from 'cors';
+import bodyParser from "body-parser";
 
-const connectToMongo = require("./db.js");
+import connectToMongo from "./db.js";
+
+import blog_routers from "./Routers/blog_routers.js";
+import user_routers from "./Routers/user_routers.js";
 
 const PORT = 5000;
 const app = express();
@@ -16,8 +19,8 @@ const corsOption = {
 app.use(bodyParser.json());
 app.use(cors(corsOption));
 
-app.use("/api/blog", require("./Routers/blog_routers.js"));
-app.use("/api/user", require("./Routers/user_routers.js"))
+app.use("/api/blog", blog_routers);
+app.use("/api/user", user_routers);
 
 connectToMongo().then(()=> (
     app.listen(PORT, (req, res) => {
