@@ -17,9 +17,6 @@ const BlogSchema = new Schema({
     type: String,
     required: true,
   },
-  popular: {
-    type: String,
-  },
   date: {
     type: String,
     required: true,

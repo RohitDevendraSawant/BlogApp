@@ -29,7 +29,7 @@ const getBlogs = async (req, res) => {
     let blogs;
     if (searchText) {
       const $regex = escapeStringRegexp(searchText.toString());
-      blogs = await Blog.find({ title: { $regex } });
+      blogs = await Blog.find({$or: [{ title: { $regex } }, { content: { $regex }}]});
     } else {
       blogs = await Blog.find();
     }
@@ -58,18 +58,15 @@ const getBlogById = async (req, res) => {
       let objData = JSON.parse(data);
       count = objData.count;
       count = count + 1;
-      blogData = { count, blog };
+      blogData = { count, blog: {} };
     }
-    blogData = JSON.stringify(blogData);
-    redisClient.set(id, blogData);
 
     if (count > 5) {
-      console.log("Here");
-      const update = await Blog.findByIdAndUpdate(id, {
-        $set: { popular: "true" },
-      });
-      console.log(update);
+      blogData = {count, blog};
     }
+
+    blogData = JSON.stringify(blogData);
+    redisClient.set(id, blogData);
 
     return res.status(200).json(blog);
   } catch (error) {
@@ -87,6 +84,9 @@ const getPopular = async (req, res) => {
         try {
           const data = await redisClient.get(key);
           const objData = JSON.parse(data);
+          if (objData.blog == {}) {
+            return res.status(200).json([]);
+          }
           blogs.push(objData.blog);
         } catch (error) {
           console.error(`Error retrieving data for key ${key}: ${error.message}`);
@@ -140,8 +140,6 @@ const updateBlog = async (req, res) => {
       return res.status(404).json({ message: "Blog not found." });
     }
 
-    console.log(req.userId, blog.authorId);
-
     if (req.userId != blog.authorId) {
       return res
         .status(401)
@@ -164,7 +162,13 @@ const updateBlog = async (req, res) => {
       { $set: updatedBlog },
       { new: true }
     );
-    res.status(200).json({ message: "Blog updated successfully.", update });
+
+    let cacheData = await redisClient.get(req.params.id);
+    let data = JSON.parse(cacheData);
+    data.blog = update;
+    let jsonData = JSON.stringify(data);
+    await redisClient.set(req.params.id, jsonData);
+    res.status(200).json({ message: "Blog updated successfully." });
   } catch (error) {
     console.log(error.message);
     res.status(500).json({ message: "Internal server error." });
@@ -184,7 +188,9 @@ const deleteBlog = async (req, res) => {
         .json({ message: "You are unauthorized to perform this operation." });
     }
 
-    blog = await Blog.findByIdAndDelete(req.params.id);
+    await Blog.findByIdAndDelete(req.params.id);
+    await redisClient.del(req.params.id);
+
     return res.status(200).json({ message: "Blog deleted." });
   } catch (error) {
     console.log(error.message);
