@@ -40,8 +40,9 @@ function Login() {
             });
             if (response.ok) {
                 const data = await response.json()
-                const token = data.authToken;
-                setCookie('jwtToken', token, { path : '/', maxAge : 60 * 60 * 24 });
+                const token = [data.accessToken, data.refreshToken];
+                
+                setCookie('jwtToken', token, { path : '/'});
                 navigate("/");
             }
             else{
