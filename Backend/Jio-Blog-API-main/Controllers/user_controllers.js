@@ -9,6 +9,10 @@ const signup = async (req, res) => {
         const { fname, lname, email, password, confirmPassword } = req.body;
 
         const user = await User.findOne({ email });
+
+        if (!fname || fname.trim().length == 0 || !lname || lname.trim().length == 0 || !email || email.trim().length == 0 || !password || password.trim().length == 0 || !confirmPassword || confirmPassword.trim().length == 0 ) {
+            return res.status(400).json({message: "Incorrect Data"});
+        }
         
 
         if (user) {

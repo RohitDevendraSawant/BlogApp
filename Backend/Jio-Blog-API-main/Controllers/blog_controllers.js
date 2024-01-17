@@ -139,11 +139,14 @@ const addBlog = async (req, res) => {
 const updateBlog = async (req, res) => {
   try {
     const { title, author, content } = req.body;
-
-    let blog = await Blog.findById(req.params.id);
-    if (!blog) {
-      return res.status(404).json({ message: "Blog not found." });
+    let blog;
+    try {
+      blog = await Blog.findById(req.params.id);
+    } catch (error) {
+      return res.status(404).json({ message: "Blog not found." })
     }
+  
+      
 
     if (req.userId != blog.authorId) {
       return res
