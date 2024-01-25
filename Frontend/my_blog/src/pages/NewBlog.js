@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useCookies } from 'react-cookie';
 
 function NewBlog() {
-    const [data, setdata] = useState({ title: "", author: "",  content: "" });
+    const [data, setdata] = useState({ title: "", content: "" });
     const [cookies] = useCookies(['jwtToken']);
     const navigate = useNavigate();
 
@@ -38,7 +38,7 @@ function NewBlog() {
             if (response.ok) {
                 console.log(response);
                 alert("Blog added.")
-                setdata({ title: "", author: "",  content: "" });
+                setdata({ title: "",  content: "" });
 
             }
             else{
@@ -62,10 +62,6 @@ function NewBlog() {
                     <div className="mb-3">
                         <label htmlFor="title" className="form-label">Title</label>
                         <input type="text" className="form-control" id="title" name="title" value={data.title} onChange={handleChange} />
-                    </div>
-                    <div className="mb-3">
-                        <label htmlFor="author" className="form-label">Author</label>
-                        <input type="author" className="form-control" id="author" name="author" value={data.author} onChange={handleChange} />
                     </div>
                     <div className="mb-3">
                         <label htmlFor="content" className="form-label">Content</label>

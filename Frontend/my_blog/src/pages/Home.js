@@ -63,6 +63,27 @@ function Home() {
 
     }
 
+    const getMyBlogs = async ()=>{
+        try {
+            const response = await fetch(`${host}/api/blog/myBlogs`, {
+                method: 'GET',
+                headers: {
+                    'Content-Type': 'application/json',
+                    'auth-token': cookies.jwtToken
+                }
+            });
+
+            if (response.ok) {
+                const data = await response.json();
+                console.log(data);
+                setData(data);
+            }
+        } catch (error) {
+            console.log(error);
+            alert(error)
+        }
+    }
+
     useEffect(() => {
         isAuthenticated();
         getBlogs();
@@ -75,6 +96,7 @@ function Home() {
                 <div className='row'>
                     <div className='col-4 d-flex justify-content-around'>
                     <button type="button" class="btn btn-light" onClick={getBlogs}>All</button>
+                    <button type="button" class="btn btn-light" onClick={getMyBlogs}>My Blogs</button>
                     <button type="button" class="btn btn-light" onClick={getPopular}>Popular</button>
                     </div>
                     <div className='col-5'>

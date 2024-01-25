@@ -65,8 +65,9 @@ function Login() {
                 const data = await response.json()
                 const refreshToken = data.refreshToken;
                 const token = await getAccessToken(refreshToken);
-                console.log(token);
                 setCookie('jwtToken', token, { path : '/'});
+                setCookie('userId', data.id, { path : '/'});
+
                 navigate("/");
             }
             else{

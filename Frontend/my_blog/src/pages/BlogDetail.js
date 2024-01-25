@@ -83,8 +83,8 @@ function BlogDetail() {
                 <p>{data.content}</p>
             </div>
             <div className='d-flex'>
-            <button type="button" onClick={()=> editBlog(data._id)} className="btn btn-warning">Edit</button>
-            <button type="button" onClick={()=> deleteBlog(data._id)} className="btn btn-danger mx-2">Delete</button>
+            <button type="button" onClick={()=> editBlog(data._id)} disabled = {cookies.userId !== data.authorId} className="btn btn-warning">Edit</button>
+            <button type="button" onClick={()=> deleteBlog(data._id)} disabled = {cookies.userId !== data.authorId} className="btn btn-danger mx-2">Delete</button>
             <button type="button" onClick={()=> navigate("/")} className="btn btn-info">Back</button>
             </div>
             

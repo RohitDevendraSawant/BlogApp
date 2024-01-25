@@ -47,13 +47,13 @@ const login = async (req, res) => {
     const user = await User.findOne({ email });
 
     if (!user) {
-        return res.status(400).json("Invalid credentials");
+        return res.status(400).json({message: "User not registered"});
     }
 
     const isAuthenticated = await bcrypt.compare(password, user.password)
 
     if (!isAuthenticated) {
-        return res.status(400).json("Invalid credentials");
+        return res.status(400).json({message: "Invalid credentials"});
     }
 
     const data = {
@@ -61,14 +61,12 @@ const login = async (req, res) => {
         email: user.email
     }
 
-    
-    let accessToken= jwt.sign(data, process.env.SECRET_KEY, { expiresIn: '1D' });
     let refreshToken= jwt.sign(data, process.env.SECRET_KEY, {expiresIn: '10D'});
     
     await User.updateOne({email : user.email},  { refreshToken: refreshToken });
 
     
-    return res.status(200).json({ accessToken, refreshToken });
+    return res.status(200).json({ refreshToken, id: user._id });
     } catch (error) {
     console.log(error);
     return res.status(500).json({message: "Internal server error"}); 
@@ -90,7 +88,8 @@ const getAccessToken= (req, res)=>{
                 if (user && user.refreshToken == refreshToken) {
                     let accessToken = jwt.sign({
                         id: user._id,
-                        email: user.email
+                        email: user.email,
+                        name: user.name
                     }, process.env.SECRET_KEY, { expiresIn: "1D"});
                     return res.status(200).json({accessToken});
                 }

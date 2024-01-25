@@ -13,6 +13,7 @@ const authenticateUser=(req, res, next) => {
                 return res.status(401).send({ message: "Authenticate using a valid token "});
             }
             req.userId = data.id;
+            req.userName = data.name;
             next();
         } catch (error) {
             console.log(error);

@@ -106,15 +106,23 @@ const getPopular = async (req, res) => {
   };
   
 
+  const myBlogs = async (req, res)=> { 
+    try {
+      const blogs = await Blog.find({authorId: req.userId});
+      return res.status(200).json(blogs);s
+  } catch (error) {
+    console.log(error);
+    res.status(500).json({ message: "Internal server error." });
+  }
+}
+
 const addBlog = async (req, res) => {
   try {
-    const { title, author, content } = req.body;
+    const { title, content } = req.body;
 
     if (
       !title ||
       title.length === 0 ||
-      !author ||
-      author.length === 0 ||
       !content ||
       content.length === 0
     ) {
@@ -123,7 +131,7 @@ const addBlog = async (req, res) => {
 
     const newBlog = new Blog({
       title,
-      author,
+      author: req.userName,
       authorId: req.userId,
       content,
       date: new Date().toLocaleDateString(),
@@ -138,7 +146,7 @@ const addBlog = async (req, res) => {
 
 const updateBlog = async (req, res) => {
   try {
-    const { title, author, content } = req.body;
+    const { title, content } = req.body;
     let blog;
     try {
       blog = await Blog.findById(req.params.id);
@@ -146,8 +154,6 @@ const updateBlog = async (req, res) => {
       return res.status(404).json({ message: "Blog not found." })
     }
   
-      
-
     if (req.userId != blog.authorId) {
       return res
         .status(401)
@@ -157,9 +163,6 @@ const updateBlog = async (req, res) => {
     const updatedBlog = {};
     if (title) {
       updatedBlog.title = title;
-    }
-    if (author) {
-      updatedBlog.author = author;
     }
     if (content) {
       updatedBlog.content = content;
@@ -211,6 +214,7 @@ export {
   getBlogs,
   getBlogById,
   getPopular,
+  myBlogs,
   addBlog,
   updateBlog,
   deleteBlog,
