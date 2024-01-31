@@ -6,7 +6,7 @@ import { useCookies } from 'react-cookie';
 function Home() {
     const [data, setData] = useState([]);
     const [searchValue, setSearchValue] = useState({search : ""});
-    const [cookies, setCookie] = useCookies(['jwtToken']);
+    const [cookies] = useCookies(['jwtToken']);
 
     const host = "http://localhost:5000";
 
@@ -53,7 +53,6 @@ function Home() {
 
             if (response.ok) {
                 const data = await response.json();
-                console.log(data);
                 setData(data);
             }
         } catch (error) {
@@ -87,7 +86,8 @@ function Home() {
     useEffect(() => {
         isAuthenticated();
         getBlogs();
-    }, [searchValue])
+        // eslint-disable-next-line
+    }, [])
 
 
     return (
@@ -95,9 +95,9 @@ function Home() {
             <div className='container my-5'>
                 <div className='row'>
                     <div className='col-4 d-flex justify-content-around'>
-                    <button type="button" class="btn btn-light" onClick={getBlogs}>All</button>
-                    <button type="button" class="btn btn-light" onClick={getMyBlogs}>My Blogs</button>
-                    <button type="button" class="btn btn-light" onClick={getPopular}>Popular</button>
+                    <button type="button" className="btn btn-light" onClick={getBlogs}>All</button>
+                    <button type="button" className="btn btn-light" onClick={getMyBlogs}>My Blogs</button>
+                    <button type="button" className="btn btn-light" onClick={getPopular}>Popular</button>
                     </div>
                     <div className='col-5'>
                         <div className='d-flex'>

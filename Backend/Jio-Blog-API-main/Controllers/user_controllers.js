@@ -43,7 +43,10 @@ const signup = async (req, res) => {
 const login = async (req, res) => {
     try {
         const { email, password } = req.body;
-
+    
+    if (!email || email.trim().length == 0 || !password || password.trim().length == 0 ){
+        return res.status(400).json({message: "Incorrect Data"});
+    }
     const user = await User.findOne({ email });
 
     if (!user) {
@@ -80,6 +83,7 @@ const getAccessToken= (req, res)=>{
 
         jwt.verify(refreshToken, process.env.SECRET_KEY, async (err, data)=>{
             if (err) {
+                console.log(err);
                 return res.status(400).json({message: "Invalid token"});
             }
             else{

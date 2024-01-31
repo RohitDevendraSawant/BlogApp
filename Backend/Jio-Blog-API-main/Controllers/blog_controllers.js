@@ -4,13 +4,15 @@ import { createClient } from "redis";
 import blog from "../models/blog.js";
 
 
-const redisClient = createClient({
-  password: "nnBgvj4JbozDfNlP8VXBCNanDhos5FYz",
-  socket: {
-    host: "redis-19577.c301.ap-south-1-1.ec2.cloud.redislabs.com",
-    port: 19577,
-  },
-});
+// const redisClient = createClient({
+//   password: "nnBgvj4JbozDfNlP8VXBCNanDhos5FYz",
+//   socket: {
+//     host: "redis-19577.c301.ap-south-1-1.ec2.cloud.redislabs.com",
+//     port: 19577,
+//   },
+// });
+
+const redisClient = createClient({ host: 'localhost', port: 6379 });
 
 (async () => {
   await redisClient.connect();
@@ -38,7 +40,7 @@ const getBlogs = async (req, res) => {
     return res.status(200).json(blogs);
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ messsage: "Internal server error." });
+    return res.status(500).json({ messsage: "Internal server error." });
   }
 };
 
@@ -73,7 +75,7 @@ const getBlogById = async (req, res) => {
     return res.status(200).json(blog);
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ message: "Internal server error" });
+    return res.status(500).json({ messsage: "Internal server error." });
   }
 };
 
@@ -101,7 +103,7 @@ const getPopular = async (req, res) => {
       res.status(200).json(blogs);
     } catch (error) {
       console.error(error);
-      return res.status(500).json({ message: "Internal server error" });
+      return res.status(500).json({ messsage: "Internal server error." });
     }
   };
   
@@ -109,10 +111,10 @@ const getPopular = async (req, res) => {
   const myBlogs = async (req, res)=> { 
     try {
       const blogs = await Blog.find({authorId: req.userId});
-      return res.status(200).json(blogs);s
+      return res.status(200).json(blogs);
   } catch (error) {
     console.log(error);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ messsage: "Internal server error." });
   }
 }
 
@@ -137,10 +139,10 @@ const addBlog = async (req, res) => {
       date: new Date().toLocaleDateString(),
     });
     const addedBlog = await newBlog.save();
-    return res.status(200).json({ message: "Blog added.", addedBlog });
+    return res.status(201).json({ message: "Blog added.", addedBlog });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ messsage: "Internal server error." });
   }
 };
 
@@ -179,10 +181,10 @@ const updateBlog = async (req, res) => {
     data.blog = update;
     let jsonData = JSON.stringify(data);
     await redisClient.set(req.params.id, jsonData);
-    res.status(200).json({ message: "Blog updated successfully." });
+    res.status(201).json({ message: "Blog updated successfully." });
   } catch (error) {
     console.log(error.message);
-    res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ messsage: "Internal server error." });
   }
 };
 
@@ -190,7 +192,7 @@ const deleteBlog = async (req, res) => {
   try {
     let blog = await Blog.findById(req.params.id);
     if (!blog) {
-      return res.status(400).json({ message: "Blog not found." });
+      return res.status(404).json({ message: "Blog not found." });
     }
 
     if (req.userId != blog.authorId) {
@@ -202,10 +204,10 @@ const deleteBlog = async (req, res) => {
     await Blog.findByIdAndDelete(req.params.id);
     await redisClient.del(req.params.id);
 
-    return res.status(200).json({ message: "Blog deleted." });
+    return res.status(201).json({ message: "Blog deleted." });
   } catch (error) {
     console.log(error.message);
-    return res.status(500).json({ message: "Internal server error." });
+    return res.status(500).json({ messsage: "Internal server error." });
   }
 };
 
